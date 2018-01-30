@@ -5,8 +5,8 @@ from tensorflow.contrib.keras.api.keras.models import Sequential
 from tensorflow.contrib.keras.api.keras.layers import Dense,LSTM,Dropout
 
 
-EPISODES = 10000
-agents_loss=0.03 # порог доверия к нейросети
+EPISODES = 10
+agents_loss=0.2 # порог доверия к нейросети
 rewards=[1,-1,0.3]#[Выигрыш,проигрыш , ничья]
 
 class game:
@@ -155,6 +155,8 @@ if __name__ == "__main__":
     g = game()
     agentx=DQNAgent(9,9)
     agento = DQNAgent(9, 9)
+    agento.load_rew("rew-o")
+
     aggentx_loss=1
     aggento_loss=1
     # g.turn(0, 2, 'x')
@@ -179,19 +181,8 @@ if __name__ == "__main__":
             if not done:
                 # Проверить все варианты, выбрать лучший
                 check_max_x = -100
-                for ni,pl in enumerate(g.pole.flat):
-                    actx = np.zeros(9)
-                    actx[ni] = 1
-                    if pl=='.':
-
-                        if aggentx_loss<agents_loss:
-                            check=agentx.act_rew(g.polex().flat,actx)
-                        else:
-                            check =random.random()
-                        if check_max_x<check:
-                            check_max_x=check
-                            actionx=actx
-                            index=ni
+                g.show()
+                index=int(input("ход Х. Введите индекс от 0 до 8:  "))
                 #делаем ход Х
                 g.turn(index//3,index-3*(index//3),'x')
 
@@ -219,7 +210,7 @@ if __name__ == "__main__":
                     acto = np.zeros(9)
                     acto[ni] = 1
                     if pl == '.':
-                        if aggento_loss < agents_loss:
+                        if aggento_loss < agents_loss or True:
                             check = agento.act_rew(g.poleo().flat, acto)
                         else:
                             check = random.random()
@@ -252,12 +243,10 @@ if __name__ == "__main__":
                 agentx.memory[-1, -2] = rewardx
                 aggentx_loss = agentx.fit_rew()
                 aggento_loss = agento.fit_rew()
-                print(e)
                 g.show()
-
                 break
-    agentx.save_rew("rew-x")
-    agento.save_rew("rew-o")
+    # agentx.save_rew("rew-x")
+    # agento.save_rew("rew-o")
 
 
 
